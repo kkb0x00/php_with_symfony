@@ -7,37 +7,37 @@ use DOMDocument;
 
 class Gdansk
 {
-    private $miasto = 'Gdansk';
-    private $liczbaDzielnic = 34;
-    private $indexDzielnica = 1;
-    private $indexPowierzchnia = 2;
-    private $indexLudnosc = 3;
+    static $miasto = 'Gdansk';
+    static $liczbaDzielnic = 34;
+    static $indexDzielnica = 1;
+    static $indexPowierzchnia = 2;
+    static $indexLudnosc = 3;
 
-    private $address = 'http://www.gdansk.pl/subpages/dzielnice/[dzielnice]/html/dzielnice_mapa_alert.php?id=';
+    static $address = 'http://www.gdansk.pl/subpages/dzielnice/[dzielnice]/html/dzielnice_mapa_alert.php?id=';
 
-    public function pobierz(): array {
+    public static function pobierz(): array {
         $dzielnice = array();
 
-        for($index = 1; $index <= $this->liczbaDzielnic; $index ++) {
-            $result = file_get_contents($this->address . $index);
+        for($index = 1; $index <= self::$liczbaDzielnic; $index ++) {
+            $result = file_get_contents(self::$address . $index);
 
             $DOM = new DOMDocument;
             $DOM->loadHTML(mb_convert_encoding($result, 'HTML-ENTITIES', 'UTF-8'));
             $items = $DOM->getElementsByTagName('div');
 
-            $dzielnica = $items->item($this->indexDzielnica)->nodeValue;
+            $dzielnica = $items->item(self::$indexDzielnica)->nodeValue;
 
-            $ludnosc = $items->item($this->indexLudnosc)->nodeValue;
+            $ludnosc = $items->item(self::$indexLudnosc)->nodeValue;
             $ludnosc = (int) explode(':', $ludnosc)[1];
 
-            $powierzchnia = $items->item($this->indexPowierzchnia)->nodeValue;
+            $powierzchnia = $items->item(self::$indexPowierzchnia)->nodeValue;
             $powierzchnia = explode(':', $powierzchnia)[1];
             $powierzchnia = str_replace(',', '.', $powierzchnia);
             $powierzchnia = (float) $powierzchnia;
 
 
             $district = new District();
-            $district->setMiasto($this->miasto);
+            $district->setMiasto(self::$miasto);
             $district->setDzielnica($dzielnica);
             $district->setLudnosc($ludnosc);
             $district->setPowierzchnia($powierzchnia);
@@ -47,6 +47,5 @@ class Gdansk
 
         return $dzielnice;
     }
-
 
 }

@@ -20,7 +20,7 @@ class DownloadController extends Controller
 
     /**
      * Download all Districts.
-     * @FOSRest\Get
+     * @FOSRest\Post
      *
      *
      * @param KernelInterface $kernel

@@ -3,9 +3,9 @@
 namespace App\Command;
 
 
-use App\Controller\DistrictController;
 use App\Controller\Extractors\Gdansk;
 use App\Controller\Extractors\Krakow;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -13,9 +13,12 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 class DownloadDistrictsCommand extends ContainerAwareCommand
 {
-    public function __construct()
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
     {
         parent::__construct();
+        $this->em = $em;
     }
 
     protected function configure()
@@ -26,30 +29,28 @@ class DownloadDistrictsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln([
-            'districts downloader',
-            '============',
-            '',
+            'districts downloader started'
         ]);
 
         $extractors = [
-            new Gdansk(),
-            new Krakow()
+            Gdansk::class,
+            Krakow::class
         ];
 
-        $districts = [];
+        $districts = array();
         foreach ($extractors as $extractor) {
-            array_merge($districts, $extractor->pobierz());
+            $districts = array_merge($districts, $extractor::pobierz());
         }
-
-        $em = $this->getContainer()->get('doctrine')->getManager();
 
         foreach ($districts as $district) {
-            $em->persist($district);
+            $this->em->persist($district);
         }
-        $em->flush();
 
+        $this->em->flush();
 
-
+        $output->writeln([
+            'districts downloader finished'
+        ]);
 
     }
 
